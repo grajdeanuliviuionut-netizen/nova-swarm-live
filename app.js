@@ -9,6 +9,14 @@ const nodeMap = {
   CHIEF: 'node-CHIEF'
 };
 
+const pathSequence = [
+  'path-scout-guard',
+  'path-guard-strat',
+  'path-strat-risk',
+  'path-risk-trader',
+  'path-trader-chief'
+];
+
 let equity = 12450.80;
 let dailyPnl = 0;
 let wins = 0;
@@ -16,6 +24,7 @@ let losses = 0;
 let closed = 0;
 let paused = false;
 let logInterval;
+let packetAnim = null;
 
 const equityEl = document.getElementById('equity');
 const equity2El = document.getElementById('equity-2');
@@ -26,6 +35,7 @@ const activeTradeEl = document.getElementById('active-trade');
 const logsEl = document.getElementById('agent-logs');
 const briefingEl = document.getElementById('chief-briefing');
 const pauseBtn = document.getElementById('pause-btn');
+const packet = document.getElementById('data-packet');
 
 function updateMetrics() {
   equityEl.textContent = `$${equity.toFixed(2)}`;
@@ -54,6 +64,41 @@ function pulseNode(agent) {
   setTimeout(() => node.classList.remove('active', 'pulse'), 1800);
 }
 
+function animatePacket(pathId, duration = 800) {
+  return new Promise(resolve => {
+    const path = document.getElementById(pathId);
+    if (!path || !packet) { resolve(); return; }
+    path.classList.add('active');
+    packet.classList.add('active');
+    const length = path.getTotalLength();
+    let start = null;
+
+    function step(ts) {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      const point = path.getPointAtLength(progress * length);
+      const svg = document.getElementById('swarm-svg');
+      const pt = svg.createSVGPoint();
+      pt.x = point.x;
+      pt.y = point.y;
+      const ctm = svg.getScreenCTM();
+      const screen = pt.matrixTransform(ctm);
+      const container = document.getElementById('swarm-container');
+      const rect = container.getBoundingClientRect();
+      packet.style.left = (screen.x - rect.left - 6) + 'px';
+      packet.style.top = (screen.y - rect.top - 6) + 'px';
+      if (progress < 1 && !paused) {
+        packetAnim = requestAnimationFrame(step);
+      } else {
+        path.classList.remove('active');
+        if (pathId === pathSequence[pathSequence.length - 1]) packet.classList.remove('active');
+        resolve();
+      }
+    }
+    packetAnim = requestAnimationFrame(step);
+  });
+}
+
 function randomTrade() {
   const sides = ['LONG', 'SHORT'];
   const pairs = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'XRPUSDT'];
@@ -64,65 +109,61 @@ function randomTrade() {
   return { side, pair, size, entry };
 }
 
-function simulateCycle() {
+async function simulateCycle() {
   if (paused) return;
 
   // Scout
   pulseNode('SCOUT');
   addLog('SCOUT', 'Scanning order flow & liquidations...');
-  
-  setTimeout(() => {
-    if (paused) return;
-    pulseNode('GUARD');
-    addLog('GUARD', 'Risk filters passed. Volatility within bounds.');
+  await animatePacket('path-scout-guard', 700);
+  if (paused) return;
 
-    setTimeout(() => {
-      if (paused) return;
-      pulseNode('STRATEGIST');
-      const bias = Math.random() > 0.45 ? 'bullish' : 'bearish';
-      addLog('STRATEGIST', `Confluence detected. Bias: ${bias.toUpperCase()}`);
+  pulseNode('GUARD');
+  addLog('GUARD', 'Risk filters passed. Volatility within bounds.');
+  await animatePacket('path-guard-strat', 700);
+  if (paused) return;
 
-      setTimeout(() => {
-        if (paused) return;
-        pulseNode('RISK');
-        addLog('RISK', 'Position size approved. Max loss 1.2%.');
+  pulseNode('STRATEGIST');
+  const bias = Math.random() > 0.45 ? 'bullish' : 'bearish';
+  addLog('STRATEGIST', `Confluence detected. Bias: ${bias.toUpperCase()}`);
+  await animatePacket('path-strat-risk', 700);
+  if (paused) return;
 
-        setTimeout(() => {
-          if (paused) return;
-          const trade = randomTrade();
-          pulseNode('TRADER');
-          addLog('TRADER', `Executing ${trade.side} ${trade.size} ${trade.pair} @ ${trade.entry}`);
-          activeTradeEl.innerHTML = `
-            <strong>${trade.side}</strong> ${trade.pair}<br>
-            Size: ${trade.size}<br>
-            Entry: $${trade.entry}
-          `;
-          activeTradeEl.className = 'content ' + (trade.side === 'LONG' ? 'bullish' : 'bearish');
+  pulseNode('RISK');
+  addLog('RISK', 'Position size approved. Max loss 1.2%.');
+  await animatePacket('path-risk-trader', 700);
+  if (paused) return;
 
-          setTimeout(() => {
-            if (paused) return;
-            pulseNode('CHIEF');
-            const outcome = Math.random() > 0.42;
-            const pnl = outcome ? +(Math.random()*180 + 20).toFixed(2) : -(Math.random()*90 + 15).toFixed(2);
-            equity += pnl;
-            dailyPnl += pnl;
-            closed++;
-            if (outcome) wins++; else losses++;
-            updateMetrics();
+  const trade = randomTrade();
+  pulseNode('TRADER');
+  addLog('TRADER', `Executing ${trade.side} ${trade.size} ${trade.pair} @ ${trade.entry}`);
+  activeTradeEl.innerHTML = `
+    <strong>${trade.side}</strong> ${trade.pair}<br>
+    Size: ${trade.size}<br>
+    Entry: $${trade.entry}
+  `;
+  activeTradeEl.className = 'content ' + (trade.side === 'LONG' ? 'bullish' : 'bearish');
+  await animatePacket('path-trader-chief', 900);
+  if (paused) return;
 
-            const summary = outcome 
-              ? `Closed +$${pnl.toFixed(2)}. Equity rising. Hold bias.`
-              : `Stopped -$${Math.abs(pnl).toFixed(2)}. Tightening filters.`;
-            briefingEl.textContent = summary;
-            briefingEl.className = 'content ' + (outcome ? 'bullish' : 'bearish');
-            addLog('CHIEF', summary);
-            activeTradeEl.textContent = 'No open trade';
-            activeTradeEl.className = 'content';
-          }, 2200);
-        }, 900);
-      }, 800);
-    }, 700);
-  }, 600);
+  pulseNode('CHIEF');
+  const outcome = Math.random() > 0.42;
+  const pnl = outcome ? +(Math.random()*180 + 20).toFixed(2) : -(Math.random()*90 + 15).toFixed(2);
+  equity += pnl;
+  dailyPnl += pnl;
+  closed++;
+  if (outcome) wins++; else losses++;
+  updateMetrics();
+
+  const summary = outcome 
+    ? `Closed +$${pnl.toFixed(2)}. Equity rising. Hold bias.`
+    : `Stopped -$${Math.abs(pnl).toFixed(2)}. Tightening filters.`;
+  briefingEl.textContent = summary;
+  briefingEl.className = 'content ' + (outcome ? 'bullish' : 'bearish');
+  addLog('CHIEF', summary);
+  activeTradeEl.textContent = 'No open trade';
+  activeTradeEl.className = 'content';
+  packet.classList.remove('active');
 }
 
 pauseBtn.addEventListener('click', () => {
@@ -135,13 +176,16 @@ pauseBtn.addEventListener('click', () => {
   } else {
     addLog('SYSTEM', 'Swarm paused');
     clearInterval(logInterval);
+    if (packetAnim) cancelAnimationFrame(packetAnim);
+    packet.classList.remove('active');
+    document.querySelectorAll('.line.active').forEach(l => l.classList.remove('active'));
   }
 });
 
 function startSimulation() {
   if (logInterval) clearInterval(logInterval);
-  logInterval = setInterval(simulateCycle, 8500);
-  simulateCycle(); // kick off immediately
+  logInterval = setInterval(() => { if (!paused) simulateCycle(); }, 9000);
+  simulateCycle();
 }
 
 // Initial state
