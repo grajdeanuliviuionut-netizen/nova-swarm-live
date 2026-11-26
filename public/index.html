@@ -3,16 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NOVA // Swarm Live — Solana Paper</title>
+  <title>NOVA // Swarm Live</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
     <div class="logo">NOVA <span>SWARM LIVE</span></div>
-    <div class="stats">Equity: <span id="equity">--</span> SOL</div>
+    <div class="status-pill" id="status-pill">ONLINE</div>
   </header>
 
   <main>
+    <!-- LEFT -->
     <aside class="left-panel">
       <div class="panel">
         <h2>ACTIVE TRADE</h2>
@@ -21,30 +22,32 @@
       <div class="panel">
         <h2>METRICS</h2>
         <ul class="metrics">
-          <li>Daily P&L <span id="daily-pnl">--</span></li>
+          <li>Daily P&amp;L <span id="daily-pnl">--</span></li>
           <li>Win Rate <span id="win-rate">--</span></li>
+          <li>Total Closed <span id="closed">--</span></li>
           <li>Total PnL <span id="total-pnl">--</span></li>
-          <li>Closed <span id="closed">--</span></li>
         </ul>
       </div>
     </aside>
 
+    <!-- CENTER SWARM -->
     <section class="center-panel">
       <div class="panel swarm-panel">
         <h2>SWARM TOPOLOGY</h2>
         <div id="swarm-container" class="swarm-container">
           <div class="grid-bg"></div>
           <svg id="swarm-svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet">
-            <path id="path-scout-guard" d="M 160 480 L 200 160" class="line" />
-            <path id="path-guard-strat" d="M 200 160 L 600 160" class="line" />
-            <path id="path-strat-risk" d="M 600 160 L 640 480" class="line" />
+            <path id="path-scout-guard" d="M 160 480 L 200 140" class="line" />
+            <path id="path-guard-strat" d="M 200 140 L 600 140" class="line" />
+            <path id="path-strat-risk" d="M 600 140 L 640 480" class="line" />
             <path id="path-risk-trader" d="M 640 480 L 400 520" class="line" />
             <path id="path-trader-chief" d="M 400 520 L 400 300" class="line" />
           </svg>
 
+          <!-- Nodes positioned in a pentagon around CHIEF -->
           <div class="node" id="node-SCOUT" style="left: 20%; top: 80%;">SCOUT</div>
-          <div class="node" id="node-GUARD" style="left: 25%; top: 26.7%;">GUARD</div>
-          <div class="node" id="node-STRATEGIST" style="left: 75%; top: 26.7%;">STRAT</div>
+          <div class="node" id="node-GUARD" style="left: 25%; top: 23.3%;">GUARD</div>
+          <div class="node" id="node-STRATEGIST" style="left: 75%; top: 23.3%;">STRAT</div>
           <div class="node" id="node-RISK" style="left: 80%; top: 80%;">RISK</div>
           <div class="node" id="node-TRADER" style="left: 50%; top: 86.7%;">TRADER</div>
           <div class="node chief" id="node-CHIEF" style="left: 50%; top: 50%;">CHIEF</div>
@@ -54,6 +57,7 @@
       </div>
     </section>
 
+    <!-- RIGHT -->
     <aside class="right-panel">
       <div class="panel log-panel">
         <h2>AGENT LOGS</h2>
@@ -61,7 +65,7 @@
       </div>
       <div class="panel">
         <h2>CHIEF AI BRIEFING</h2>
-        <div id="chief-briefing" class="content calm">Waiting...</div>
+        <div id="chief-briefing" class="content calm">Waiting for briefing...</div>
       </div>
     </aside>
   </main>
