@@ -35,25 +35,30 @@
             <div class="panel swarm-panel">
                 <h2>SWARM TOPOLOGY</h2>
                 <div id="swarm-container" class="swarm-container">
+                    <!-- The glowing background grid -->
+                    <div class="grid-bg"></div>
+                    
                     <!-- SVG Lines -->
-                    <svg id="swarm-svg">
-                        <!-- The pipeline path -->
-                        <path id="path-1" d="M 200 200 L 400 100" class="line" />
-                        <path id="path-2" d="M 400 100 L 600 200" class="line" />
-                        <path id="path-3" d="M 600 200 L 500 400" class="line" />
-                        <path id="path-4" d="M 500 400 L 300 400" class="line" />
-                        <path id="path-5" d="M 300 400 L 200 200" class="line" />
-                        <path id="path-6" d="M 300 400 L 400 250" class="line" /> <!-- Trader to Chief -->
+                    <svg id="swarm-svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet">
+                        <!-- Defining paths for the data packets to travel on -->
+                        <path id="path-scout-guard" d="M 200 450 L 300 150" class="line" />
+                        <path id="path-guard-strat" d="M 300 150 L 500 150" class="line" />
+                        <path id="path-strat-risk" d="M 500 150 L 600 450" class="line" />
+                        <path id="path-risk-trader" d="M 600 450 L 400 500" class="line" />
+                        <path id="path-trader-chief" d="M 400 500 L 400 300" class="line" />
                     </svg>
 
                     <!-- Nodes -->
-                    <div class="node" id="node-SCOUT" style="left: 200px; top: 200px;">SCOUT</div>
-                    <div class="node" id="node-GUARD" style="left: 400px; top: 100px;">GUARD</div>
-                    <div class="node" id="node-STRATEGIST" style="left: 600px; top: 200px;">STRAT</div>
-                    <div class="node" id="node-RISK" style="left: 500px; top: 400px;">RISK</div>
-                    <div class="node" id="node-TRADER" style="left: 300px; top: 400px;">TRADER</div>
+                    <div class="node" id="node-SCOUT" style="left: 25%; top: 75%;">SCOUT</div>
+                    <div class="node" id="node-GUARD" style="left: 37.5%; top: 25%;">GUARD</div>
+                    <div class="node" id="node-STRATEGIST" style="left: 62.5%; top: 25%;">STRAT</div>
+                    <div class="node" id="node-RISK" style="left: 75%; top: 75%;">RISK</div>
+                    <div class="node" id="node-TRADER" style="left: 50%; top: 83.3%;">TRADER</div>
                     
-                    <div class="node chief" id="node-CHIEF" style="left: 400px; top: 250px;">CHIEF</div>
+                    <div class="node chief" id="node-CHIEF" style="left: 50%; top: 50%;">CHIEF</div>
+
+                    <!-- The moving data packet -->
+                    <div id="data-packet" class="data-packet"></div>
                 </div>
             </div>
         </section>
