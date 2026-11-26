@@ -2,9 +2,8 @@
   "name": "nova-swarm-live",
   "version": "1.0.0",
   "description": "NOVA Swarm Live dashboard",
-  "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "npx serve -s . -l $PORT"
   },
   "dependencies": {
     "serve": "^14.2.4"
