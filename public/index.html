@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NOVA // Swarm Live — Solana Paper</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="logo">NOVA <span>SWARM LIVE</span></div>
+    <div class="stats">Equity: <span id="equity">--</span> SOL</div>
+  </header>
+
+  <main>
+    <aside class="left-panel">
+      <div class="panel">
+        <h2>ACTIVE TRADE</h2>
+        <div id="active-trade" class="content">No open trade</div>
+      </div>
+      <div class="panel">
+        <h2>METRICS</h2>
+        <ul class="metrics">
+          <li>Daily P&L <span id="daily-pnl">--</span></li>
+          <li>Win Rate <span id="win-rate">--</span></li>
+          <li>Total PnL <span id="total-pnl">--</span></li>
+          <li>Closed <span id="closed">--</span></li>
+        </ul>
+      </div>
+    </aside>
+
+    <section class="center-panel">
+      <div class="panel swarm-panel">
+        <h2>SWARM TOPOLOGY</h2>
+        <div id="swarm-container" class="swarm-container">
+          <div class="grid-bg"></div>
+          <svg id="swarm-svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet">
+            <path id="path-scout-guard" d="M 160 480 L 200 160" class="line" />
+            <path id="path-guard-strat" d="M 200 160 L 600 160" class="line" />
+            <path id="path-strat-risk" d="M 600 160 L 640 480" class="line" />
+            <path id="path-risk-trader" d="M 640 480 L 400 520" class="line" />
+            <path id="path-trader-chief" d="M 400 520 L 400 300" class="line" />
+          </svg>
+
+          <div class="node" id="node-SCOUT" style="left: 20%; top: 80%;">SCOUT</div>
+          <div class="node" id="node-GUARD" style="left: 25%; top: 26.7%;">GUARD</div>
+          <div class="node" id="node-STRATEGIST" style="left: 75%; top: 26.7%;">STRAT</div>
+          <div class="node" id="node-RISK" style="left: 80%; top: 80%;">RISK</div>
+          <div class="node" id="node-TRADER" style="left: 50%; top: 86.7%;">TRADER</div>
+          <div class="node chief" id="node-CHIEF" style="left: 50%; top: 50%;">CHIEF</div>
+
+          <div id="data-packet" class="data-packet"></div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="right-panel">
+      <div class="panel log-panel">
+        <h2>AGENT LOGS</h2>
+        <div id="agent-logs" class="logs"></div>
+      </div>
+      <div class="panel">
+        <h2>CHIEF AI BRIEFING</h2>
+        <div id="chief-briefing" class="content calm">Waiting...</div>
+      </div>
+    </aside>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

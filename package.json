@@ -1,11 +1,13 @@
 {
-  "name": "nova-swarm-live",
+  "name": "nova-swarm-solana",
   "version": "1.0.0",
-  "description": "NOVA Swarm Live dashboard",
+  "description": "Solana memecoin paper-trading swarm bot",
+  "main": "server.js",
   "scripts": {
-    "start": "npx serve -s . -l $PORT"
+    "start": "node server.js"
   },
   "dependencies": {
-    "serve": "^14.2.4"
+    "express": "^4.18.2",
+    "axios": "^1.6.8"
   }
 }
