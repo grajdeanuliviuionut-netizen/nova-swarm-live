@@ -106,6 +106,17 @@ main {
   min-height: 520px;
 }
 
+.grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(59, 130, 246, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.08) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
 #swarm-svg {
   position: absolute;
   inset: 0;
@@ -146,6 +157,7 @@ main {
   cursor: default;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  z-index: 2;
 }
 
 .node.chief {
@@ -171,6 +183,23 @@ main {
 @keyframes pulse {
   0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
   50% { box-shadow: 0 0 0 12px transparent; }
+}
+
+.data-packet {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--accent), 0 0 24px var(--accent-glow);
+  z-index: 3;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.data-packet.active {
+  opacity: 1;
 }
 
 /* Logs */
