@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ORBITALS // GROK DESK</title>
+<title>GROK BOT TRADING DESK</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="style.css">
@@ -11,89 +11,75 @@
 <body>
 <div class="desk">
   <header class="top">
-    <div class="brand">GROK DESK <span>ORBITALS</span></div>
-    <div class="strip">
-      <span>EQ <strong id="equity">1.0000</strong> SOL</span>
-      <span>PNL <strong id="pnl" class="pos">+0.0000</strong></span>
-      <span>WR <strong id="wr">0%</strong></span>
-      <span>AGENTS <strong class="on">6/6</strong></span>
-      <span>MODE <strong>PAPER</strong></span>
-      <span class="utc" id="utc">--:--:--</span>
+    <div class="brand">
+      <div class="logo">G</div>
+      GROK BOT TRADING DESK
     </div>
+    <div class="live"><span class="dot"></span> LIVE</div>
+    <div class="balance" id="equity">$1.0000</div>
   </header>
 
-  <main class="grid">
-    <aside class="panel trace">
-      <h3>THE TRACE</h3>
-      <div class="line"><span class="dot cyan"></span> SCOUT <span class="val">SCANNING</span></div>
-      <div class="line"><span class="dot yellow"></span> GUARD <span class="val">FILTERS OK</span></div>
-      <div class="line"><span class="dot green"></span> STRAT <span class="val">CONFLUENCE</span></div>
-      <div class="line"><span class="dot red"></span> RISK <span class="val">0.02 SOL</span></div>
-      <div class="line"><span class="dot purple"></span> TRADER <span class="val" id="trade-status">WAITING</span></div>
-    </aside>
+  <div class="subtitle">22 AGENTS · ONE GROK · MEME SIGNALS · 22/22 ONLINE</div>
 
-    <section class="panel orbitals">
-      <div class="orb-header">ORBITALS · SIX AGENTS · TICKET JUMPS BETWEEN THEM</div>
-      <div class="orb-stage">
-        <svg id="orbit-svg" viewBox="0 0 800 520" preserveAspectRatio="xMidYMid meet">
-          <defs>
-            <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-            <radialGradient id="core" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#1a0a30"/>
-              <stop offset="100%" stop-color="#050510"/>
-            </radialGradient>
-          </defs>
-          <path id="p1" d="M 120 120 C 200 40, 320 80, 400 260" class="path cyan"/>
-          <path id="p2" d="M 400 80 C 480 20, 560 60, 400 260" class="path magenta"/>
-          <path id="p3" d="M 680 120 C 600 30, 500 90, 400 260" class="path purple"/>
-          <path id="p4" d="M 680 400 C 600 490, 500 430, 400 260" class="path green"/>
-          <path id="p5" d="M 400 440 C 320 510, 220 470, 400 260" class="path cyan"/>
-          <path id="p6" d="M 120 400 C 200 490, 300 430, 400 260" class="path magenta"/>
-          <path id="x1" d="M 120 120 C 250 160, 330 200, 400 260" class="path purple thin"/>
-          <path id="x2" d="M 680 120 C 550 180, 470 210, 400 260" class="path green thin"/>
-          <circle cx="400" cy="260" r="70" fill="url(#core)" stroke="#ff006e" stroke-width="2" filter="url(#glow)"/>
-        </svg>
+  <main class="main">
+    <section class="orbitals-panel">
+      <svg id="svg" viewBox="0 0 900 480">
+        <defs>
+          <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <radialGradient id="coreg" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#1a1030"/>
+            <stop offset="100%" stop-color="#050510"/>
+          </radialGradient>
+        </defs>
+        <path id="p1" d="M 80 80 C 180 20, 280 60, 450 240" class="line green"/>
+        <path id="p2" d="M 220 60 C 300 10, 380 40, 450 240" class="line cyan"/>
+        <path id="p3" d="M 680 70 C 580 10, 500 50, 450 240" class="line purple"/>
+        <path id="p4" d="M 820 100 C 720 40, 560 70, 450 240" class="line magenta"/>
+        <path id="p5" d="M 820 380 C 720 450, 560 410, 450 240" class="line green"/>
+        <path id="p6" d="M 680 420 C 580 480, 500 430, 450 240" class="line cyan"/>
+        <path id="p7" d="M 220 420 C 300 480, 380 440, 450 240" class="line purple"/>
+        <path id="p8" d="M 80 400 C 180 470, 280 420, 450 240" class="line magenta"/>
+        <circle cx="450" cy="240" r="62" fill="url(#coreg)" stroke="#00f0ff" stroke-width="1.5" filter="url(#glow)"/>
+      </svg>
 
-        <div class="core-face" id="node-CHIEF">
-          <div class="eyes"><span></span><span></span></div>
-          <div class="label">CHIEF</div>
-        </div>
-
-        <div class="orb-node" id="node-SCOUT" style="left:15%;top:23%">SCOUT</div>
-        <div class="orb-node" id="node-GUARD" style="left:50%;top:15%">GUARD</div>
-        <div class="orb-node" id="node-STRAT" style="left:85%;top:23%">STRAT</div>
-        <div class="orb-node" id="node-RISK" style="left:85%;top:77%">RISK</div>
-        <div class="orb-node" id="node-TRADER" style="left:50%;top:85%">TRADER</div>
-
-        <div class="packet" id="pkt"></div>
+      <div class="core">
+        <div class="face"><span></span><span></span></div>
       </div>
+
+      <div class="agent" style="left:8%;top:16%" data-n="SCOUT">SCOUT</div>
+      <div class="agent" style="left:24%;top:12%" data-n="GUARD">GUARD</div>
+      <div class="agent" style="left:76%;top:14%" data-n="STRAT">STRAT</div>
+      <div class="agent" style="left:92%;top:20%" data-n="RISK">RISK</div>
+      <div class="agent" style="left:92%;top:80%" data-n="TRADER">TRADER</div>
+      <div class="agent" style="left:76%;top:88%" data-n="KELLY">KELLY</div>
+      <div class="agent" style="left:24%;top:88%" data-n="EDGE">EDGE</div>
+      <div class="agent" style="left:8%;top:84%" data-n="PRIOR">PRIOR</div>
+
+      <div class="pkt" id="pkt"></div>
     </section>
 
-    <aside class="panel control">
-      <h3>MISSION CONTROL</h3>
-      <div class="stat-box">
-        <div>SOL UP 5M</div>
-        <strong id="sol-price">--</strong>
-      </div>
-      <div class="stat-box">
-        <div>OPEN TICKETS</div>
-        <strong id="open-count">0</strong>
-      </div>
-      <div class="stat-box mood" id="mood-box">
-        <div>CHIEF MOOD</div>
-        <strong id="mood">CALM</strong>
-      </div>
-      <div class="brief" id="brief">Standing by...</div>
-    </aside>
-
-    <section class="panel charts">
-      <div class="chart-box">
-        <h3>SWARM PNL</h3>
-        <canvas id="pnlChart"></canvas>
-      </div>
-      <div class="chart-box">
-        <h3>PRICE ACTION</h3>
+    <section class="bottom">
+      <div class="chart-panel">
+        <div class="ch-header">
+          <span id="token-name">HOTBOT</span>
+          <span class="holding">HOLDING</span>
+        </div>
         <canvas id="candleChart"></canvas>
+        <div class="trade-info">
+          <div>Entry <strong id="entry">--</strong></div>
+          <div>Size <strong>0.02 SOL</strong></div>
+          <div>P&L <strong id="trade-pnl" class="pos">+0.0000</strong></div>
+        </div>
+      </div>
+
+      <div class="trades-panel">
+        <div class="ch-header">TRADES · SPOT <span class="closed">0 closed</span></div>
+        <div id="trade-list" class="trade-list"></div>
+      </div>
+
+      <div class="logs-panel">
+        <div class="ch-header">AGENT LOGS</div>
+        <div id="logs" class="logs"></div>
       </div>
     </section>
   </main>
