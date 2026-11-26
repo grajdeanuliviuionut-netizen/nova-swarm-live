@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVA // Swarm Live</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">NOVA <span>SWARM LIVE</span></div>
+        <div class="stats">Equity: <span id="equity">--</span></div>
+    </header>
+
+    <main>
+        <!-- LEFT COLUMN -->
+        <aside class="left-panel">
+            <div class="panel">
+                <h2>ACTIVE TRADE</h2>
+                <div id="active-trade" class="content">No open trade</div>
+            </div>
+            <div class="panel">
+                <h2>METRICS</h2>
+                <ul class="metrics">
+                    <li>Daily P&L <span id="daily-pnl">--</span></li>
+                    <li>Win Rate <span id="win-rate">--</span></li>
+                    <li>Equity <span id="equity-2">--</span></li>
+                    <li>Closed <span id="closed">--</span></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- CENTER SWARM -->
+        <section class="center-panel">
+            <div class="panel swarm-panel">
+                <h2>SWARM TOPOLOGY</h2>
+                <div id="swarm-container" class="swarm-container">
+                    <!-- SVG Lines -->
+                    <svg id="swarm-svg">
+                        <!-- The pipeline path -->
+                        <path id="path-1" d="M 200 200 L 400 100" class="line" />
+                        <path id="path-2" d="M 400 100 L 600 200" class="line" />
+                        <path id="path-3" d="M 600 200 L 500 400" class="line" />
+                        <path id="path-4" d="M 500 400 L 300 400" class="line" />
+                        <path id="path-5" d="M 300 400 L 200 200" class="line" />
+                        <path id="path-6" d="M 300 400 L 400 250" class="line" /> <!-- Trader to Chief -->
+                    </svg>
+
+                    <!-- Nodes -->
+                    <div class="node" id="node-SCOUT" style="left: 200px; top: 200px;">SCOUT</div>
+                    <div class="node" id="node-GUARD" style="left: 400px; top: 100px;">GUARD</div>
+                    <div class="node" id="node-STRATEGIST" style="left: 600px; top: 200px;">STRAT</div>
+                    <div class="node" id="node-RISK" style="left: 500px; top: 400px;">RISK</div>
+                    <div class="node" id="node-TRADER" style="left: 300px; top: 400px;">TRADER</div>
+                    
+                    <div class="node chief" id="node-CHIEF" style="left: 400px; top: 250px;">CHIEF</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN -->
+        <aside class="right-panel">
+            <div class="panel log-panel">
+                <h2>AGENT LOGS</h2>
+                <div id="agent-logs" class="logs"></div>
+            </div>
+            <div class="panel">
+                <h2>CHIEF AI BRIEFING</h2>
+                <div id="chief-briefing" class="content calm">Waiting...</div>
+            </div>
+        </aside>
+    </main>
+    
+    <button id="pause-btn">PAUSE</button>
+
+    <script src="app.js"></script>
+</body>
+</html>
