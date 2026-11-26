@@ -3,55 +3,100 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ORBITALS // SOLANA PAPER</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<title>ORBITALS // GROK DESK</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="terminal">
-  <header class="top-bar">
-    <div class="brand">ORBITALS <span>// SOLANA</span></div>
-    <div class="metrics">
-      <div class="metric"><span>EQUITY</span><strong id="equity">--</strong></div>
-      <div class="metric"><span>PNL</span><strong id="pnl">--</strong></div>
-      <div class="metric"><span>WIN RATE</span><strong id="wr">--</strong></div>
-      <div class="metric"><span>AGENTS</span><strong class="online">6/6</strong></div>
-      <div class="metric"><span>MODE</span><strong>PAPER</strong></div>
+<div class="desk">
+  <header class="top">
+    <div class="brand">GROK DESK <span>ORBITALS</span></div>
+    <div class="strip">
+      <span>EQ <strong id="equity">1.0000</strong> SOL</span>
+      <span>PNL <strong id="pnl" class="pos">+0.0000</strong></span>
+      <span>WR <strong id="wr">0%</strong></span>
+      <span>AGENTS <strong class="on">6/6</strong></span>
+      <span>MODE <strong>PAPER</strong></span>
+      <span class="utc" id="utc">--:--:--</span>
     </div>
   </header>
 
-  <section class="orbitals">
-    <svg id="orbit-svg" viewBox="0 0 900 580" preserveAspectRatio="xMidYMid meet">
-      <defs>
-        <filter id="glow"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      </defs>
-      <path id="p-scout" d="M 150 140 C 250 60, 380 100, 450 290" class="path cyan"/>
-      <path id="p-guard" d="M 450 100 C 500 40, 580 80, 450 290" class="path magenta"/>
-      <path id="p-strat" d="M 750 140 C 650 50, 540 110, 450 290" class="path purple"/>
-      <path id="p-risk" d="M 750 440 C 650 530, 540 470, 450 290" class="path cyan"/>
-      <path id="p-trader" d="M 450 480 C 380 540, 280 500, 450 290" class="path magenta"/>
-      <path id="p-chief" d="M 150 440 C 230 520, 360 470, 450 290" class="path purple"/>
-      <path id="x1" d="M 150 140 C 280 180, 360 220, 450 290" class="path cyan thin"/>
-      <path id="x2" d="M 750 140 C 620 200, 540 240, 450 290" class="path magenta thin"/>
-    </svg>
+  <main class="grid">
+    <aside class="panel trace">
+      <h3>THE TRACE</h3>
+      <div class="line"><span class="dot cyan"></span> SCOUT <span class="val">SCANNING</span></div>
+      <div class="line"><span class="dot yellow"></span> GUARD <span class="val">FILTERS OK</span></div>
+      <div class="line"><span class="dot green"></span> STRAT <span class="val">CONFLUENCE</span></div>
+      <div class="line"><span class="dot red"></span> RISK <span class="val">0.02 SOL</span></div>
+      <div class="line"><span class="dot purple"></span> TRADER <span class="val" id="trade-status">WAITING</span></div>
+    </aside>
 
-    <div class="node core" id="node-CHIEF">CHIEF</div>
-    <div class="node agent" id="node-SCOUT" style="left:16.7%;top:24%">SCOUT</div>
-    <div class="node agent" id="node-GUARD" style="left:50%;top:17%">GUARD</div>
-    <div class="node agent" id="node-STRATEGIST" style="left:83.3%;top:24%">STRAT</div>
-    <div class="node agent" id="node-RISK" style="left:83.3%;top:76%">RISK</div>
-    <div class="node agent" id="node-TRADER" style="left:50%;top:83%">TRADER</div>
+    <section class="panel orbitals">
+      <div class="orb-header">ORBITALS · SIX AGENTS · TICKET JUMPS BETWEEN THEM</div>
+      <div class="orb-stage">
+        <svg id="orbit-svg" viewBox="0 0 800 520" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <radialGradient id="core" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#1a0a30"/>
+              <stop offset="100%" stop-color="#050510"/>
+            </radialGradient>
+          </defs>
+          <path id="p1" d="M 120 120 C 200 40, 320 80, 400 260" class="path cyan"/>
+          <path id="p2" d="M 400 80 C 480 20, 560 60, 400 260" class="path magenta"/>
+          <path id="p3" d="M 680 120 C 600 30, 500 90, 400 260" class="path purple"/>
+          <path id="p4" d="M 680 400 C 600 490, 500 430, 400 260" class="path green"/>
+          <path id="p5" d="M 400 440 C 320 510, 220 470, 400 260" class="path cyan"/>
+          <path id="p6" d="M 120 400 C 200 490, 300 430, 400 260" class="path magenta"/>
+          <path id="x1" d="M 120 120 C 250 160, 330 200, 400 260" class="path purple thin"/>
+          <path id="x2" d="M 680 120 C 550 180, 470 210, 400 260" class="path green thin"/>
+          <circle cx="400" cy="260" r="70" fill="url(#core)" stroke="#ff006e" stroke-width="2" filter="url(#glow)"/>
+        </svg>
 
-    <div class="packet" id="pkt1"></div>
-    <div class="packet" id="pkt2"></div>
-    <div class="packet" id="pkt3"></div>
-  </section>
+        <div class="core-face" id="node-CHIEF">
+          <div class="eyes"><span></span><span></span></div>
+          <div class="label">CHIEF</div>
+        </div>
 
-  <section class="charts">
-    <div class="chart-panel"><h3>PNL CURVE</h3><canvas id="pnlChart"></canvas></div>
-    <div class="chart-panel"><h3>PRICE ACTION</h3><canvas id="candleChart"></canvas></div>
-  </section>
+        <div class="orb-node" id="node-SCOUT" style="left:15%;top:23%">SCOUT</div>
+        <div class="orb-node" id="node-GUARD" style="left:50%;top:15%">GUARD</div>
+        <div class="orb-node" id="node-STRAT" style="left:85%;top:23%">STRAT</div>
+        <div class="orb-node" id="node-RISK" style="left:85%;top:77%">RISK</div>
+        <div class="orb-node" id="node-TRADER" style="left:50%;top:85%">TRADER</div>
+
+        <div class="packet" id="pkt"></div>
+      </div>
+    </section>
+
+    <aside class="panel control">
+      <h3>MISSION CONTROL</h3>
+      <div class="stat-box">
+        <div>SOL UP 5M</div>
+        <strong id="sol-price">--</strong>
+      </div>
+      <div class="stat-box">
+        <div>OPEN TICKETS</div>
+        <strong id="open-count">0</strong>
+      </div>
+      <div class="stat-box mood" id="mood-box">
+        <div>CHIEF MOOD</div>
+        <strong id="mood">CALM</strong>
+      </div>
+      <div class="brief" id="brief">Standing by...</div>
+    </aside>
+
+    <section class="panel charts">
+      <div class="chart-box">
+        <h3>SWARM PNL</h3>
+        <canvas id="pnlChart"></canvas>
+      </div>
+      <div class="chart-box">
+        <h3>PRICE ACTION</h3>
+        <canvas id="candleChart"></canvas>
+      </div>
+    </section>
+  </main>
 </div>
 <script src="app.js"></script>
 </body>
