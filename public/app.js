@@ -1,10 +1,17 @@
-const pathIds = ['p1','p2','p3','p4','p5','p6','p7','p8'];
-const agentNames = ['SCOUT','GUARD','STRAT','RISK','TRADER','KELLY','EDGE','PRIOR'];
+const pathMap = {
+  SCOUT: 'p-scout',
+  GUARD: 'p-guard',
+  STRATEGIST: 'p-strat',
+  RISK: 'p-risk',
+  TRADER: 'p-trader',
+  KELLY: 'p-kelly'
+};
+const agents = Object.keys(pathMap);
 let cycle = 0;
 let lastTs = 0;
 let chart;
 
-function animatePkt(pathId, dur = 1400) {
+function animatePacket(pathId, dur = 1200) {
   const path = document.getElementById(pathId);
   const pkt = document.getElementById('pkt');
   if (!path || !pkt) return;
@@ -30,23 +37,24 @@ function animatePkt(pathId, dur = 1400) {
 }
 
 setInterval(() => {
-  animatePkt(pathIds[cycle % pathIds.length], 1500);
-  document.querySelectorAll('.agent').forEach(a => a.classList.remove('active'));
-  const ag = document.querySelector(`.agent[data-n="${agentNames[cycle % agentNames.length]}"]`);
-  if (ag) ag.classList.add('active');
+  const agent = agents[cycle % agents.length];
+  animatePacket(pathMap[agent], 1400);
+  document.querySelectorAll('.hud-card').forEach(c => c.classList.remove('active'));
+  const card = document.getElementById('card-' + agent);
+  if (card) card.classList.add('active');
   cycle++;
-}, 1600);
+}, 1800);
 
 function initChart() {
   const ctx = document.getElementById('candle').getContext('2d');
   chart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: Array.from({length: 16}, (_, i) => i),
+      labels: Array.from({length: 18}, (_, i) => i),
       datasets: [{
-        data: [[68,74],[70,76],[69,75],[72,78],[71,77],[74,80],[73,79],[75,81],[74,80],[76,82],[75,81],[77,83],[76,82],[75,81],[74,79],[73,78]],
-        backgroundColor: Array(16).fill(0).map((_,i) => i % 3 === 0 ? 'rgba(255,0,110,0.55)' : 'rgba(0,255,136,0.55)'),
-        borderColor: Array(16).fill(0).map((_,i) => i % 3 === 0 ? '#ff006e' : '#00ff88'),
+        data: [[70,76],[72,78],[69,75],[73,79],[71,77],[75,81],[73,79],[76,82],[74,80],[77,83],[75,81],[78,84],[76,82],[75,81],[74,80],[73,79],[72,78],[71,77]],
+        backgroundColor: Array(18).fill(0).map((_, i) => i % 3 === 0 ? 'rgba(255,0,85,0.55)' : 'rgba(0,255,136,0.55)'),
+        borderColor: Array(18).fill(0).map((_, i) => i % 3 === 0 ? '#ff0055' : '#00ff88'),
         borderWidth: 1,
         barPercentage: 0.5
       }]
@@ -56,47 +64,49 @@ function initChart() {
       maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
-        x: { ticks: { color: '#444', maxTicksLimit: 5 }, grid: { display: false } },
-        y: { ticks: { color: '#444' }, grid: { color: '#151520' } }
+        x: { ticks: { color: '#445555', maxTicksLimit: 6 }, grid: { color: 'rgba(0,255,136,0.06)' } },
+        y: { ticks: { color: '#445555' }, grid: { color: 'rgba(0,255,136,0.06)' } }
       }
     }
   });
 }
 
+function renderLogs(logs) {
+  const el = document.getElementById('logs');
+  if (!logs || !logs.length) {
+    el.innerHTML = '<div class="log-entry"><span class="time">--:--:--</span>No activity</div>';
+    return;
+  }
+  el.innerHTML = logs.slice(0, 20).map(l => {
+    const t = new Date(l.time).toLocaleTimeString('en-GB', { hour12: false });
+    const agent = (l.agent || '').toLowerCase();
+    const tag = l.agent || 'SYS';
+    return `<div class="log-entry ${agent}"><span class="time">${t}</span><span class="tag">[${tag}]</span>${l.message || ''}</div>`;
+  }).join('');
+}
+
 function update(d) {
-  document.getElementById('equity').textContent = '$' + (d.equity || 1).toFixed(4);
-  document.getElementById('token').textContent = d.openTrade ? d.openTrade.token : 'SCANNING';
-  document.getElementById('entry').textContent = d.openTrade ? '$' + d.openTrade.entryPrice.toFixed(4) : '--';
+  document.getElementById('balance').textContent = (d.equity || 1).toFixed(4);
   const pnl = d.totalPnl || 0;
   const pnlEl = document.getElementById('pnl');
   pnlEl.textContent = (pnl >= 0 ? '+' : '') + pnl.toFixed(4);
   pnlEl.className = pnl >= 0 ? 'pos' : 'neg';
+  const total = (d.wins || 0) + (d.losses || 0);
+  document.getElementById('trades').textContent = total;
+  document.getElementById('wr').textContent = total ? ((d.wins / total) * 100).toFixed(0) + '%' : '0%';
+  document.getElementById('token').textContent = d.openTrade ? d.openTrade.token : '--';
 
-  const closed = (d.wins || 0) + (d.losses || 0);
-  document.querySelector('.closed').textContent = closed + ' closed';
-
-  const trades = document.getElementById('trades');
-  if (d.agentLogs && d.agentLogs.length) {
-    trades.innerHTML = d.agentLogs.slice(0, 10).map(l => {
-      const isBuy = (l.message || '').includes('BUY');
-      const isClose = (l.message || '').includes('CLOSED');
-      return `<div class="trow"><span class="${isBuy?'buy':isClose?'sell':''}">${l.agent}</span><span>${(l.message||'').slice(0,32)}</span></div>`;
-    }).join('');
-  }
-
-  const logs = document.getElementById('logs');
-  if (d.agentLogs && d.agentLogs.length) {
-    logs.innerHTML = d.agentLogs.slice(0, 14).map(l => {
-      const t = new Date(l.time).toLocaleTimeString('en-GB', {hour12:false});
-      return `<div class="lrow"><span class="t">${t}</span><span class="ag">${l.agent}</span>${l.message || ''}</div>`;
-    }).join('');
-  }
+  renderLogs(d.agentLogs || []);
 
   const newest = d.agentLogs?.[0];
   if (newest && newest.time > lastTs && Date.now() - newest.time < 5000) {
     lastTs = newest.time;
-    const map = { SCOUT:'p1', GUARD:'p2', STRATEGIST:'p3', RISK:'p4', TRADER:'p5' };
-    if (map[newest.agent]) animatePkt(map[newest.agent], 800);
+    const agent = newest.agent;
+    const pathId = pathMap[agent];
+    document.querySelectorAll('.hud-card').forEach(c => c.classList.remove('active'));
+    const card = document.getElementById('card-' + agent);
+    if (card) card.classList.add('active');
+    if (pathId) animatePacket(pathId, 900);
   }
 }
 
@@ -105,7 +115,7 @@ async function poll() {
     const r = await fetch('/api/status');
     const d = await r.json();
     update(d);
-  } catch(e) {}
+  } catch (e) {}
 }
 
 initChart();
