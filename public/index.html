@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GROK // ORBITALS HUD</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
@@ -24,9 +24,7 @@
   <section class="orbitals">
     <div class="grid-bg"></div>
     <svg id="svg" viewBox="0 0 1000 540" preserveAspectRatio="xMidYMid meet">
-      <defs>
-        <filter id="glow"><feGaussianBlur stdDeviation="2.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      </defs>
+      <defs><filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
       <path id="p-scout" d="M 140 90 C 250 40, 380 80, 500 270" class="path"/>
       <path id="p-guard" d="M 360 50 C 420 20, 460 60, 500 270" class="path"/>
       <path id="p-strat" d="M 860 90 C 750 40, 620 80, 500 270" class="path"/>
@@ -36,41 +34,23 @@
     </svg>
 
     <div class="radar">
-      <div class="ring r1"></div>
-      <div class="ring r2"></div>
-      <div class="ring r3"></div>
-      <div class="core">
-        <div class="eyes"><span></span><span></span></div>
-        <div class="core-label">GROK</div>
-      </div>
+      <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+      <div class="core"><div class="eyes"><span></span><span></span></div><div class="core-label">GROK</div></div>
     </div>
 
-    <div class="hud-card c-scout" id="card-SCOUT">
-      <div class="icon">📡</div>
-      <div class="info"><div class="title">SCOUT</div><div class="sub">SCANNING</div></div>
-    </div>
-    <div class="hud-card c-guard" id="card-GUARD">
-      <div class="icon">🛡️</div>
-      <div class="info"><div class="title">GUARD</div><div class="sub">FILTERS</div></div>
-    </div>
-    <div class="hud-card c-strat" id="card-STRATEGIST">
-      <div class="icon">🎯</div>
-      <div class="info"><div class="title">STRAT</div><div class="sub">CONFLUENCE</div></div>
-    </div>
-    <div class="hud-card c-risk" id="card-RISK">
-      <div class="icon">⚠️</div>
-      <div class="info"><div class="title">RISK</div><div class="sub">0.02 SOL</div></div>
-    </div>
-    <div class="hud-card c-trader" id="card-TRADER">
-      <div class="icon">⚡</div>
-      <div class="info"><div class="title">TRADER</div><div class="sub">EXECUTING</div></div>
-    </div>
-    <div class="hud-card c-kelly" id="card-KELLY">
-      <div class="icon">📊</div>
-      <div class="info"><div class="title">KELLY</div><div class="sub">SIZING</div></div>
-    </div>
+    <div class="hud-card c-scout" id="card-SCOUT"><div class="icon">📡</div><div class="info"><div class="title">SCOUT</div><div class="sub">SCANNING</div></div></div>
+    <div class="hud-card c-guard" id="card-GUARD"><div class="icon">🛡️</div><div class="info"><div class="title">GUARD</div><div class="sub">FILTERS</div></div></div>
+    <div class="hud-card c-strat" id="card-STRATEGIST"><div class="icon">🎯</div><div class="info"><div class="title">STRAT</div><div class="sub">CONFLUENCE</div></div></div>
+    <div class="hud-card c-risk" id="card-RISK"><div class="icon">⚠️</div><div class="info"><div class="title">RISK</div><div class="sub">0.02 SOL</div></div></div>
+    <div class="hud-card c-trader" id="card-TRADER"><div class="icon">⚡</div><div class="info"><div class="title">TRADER</div><div class="sub">EXECUTING</div></div></div>
+    <div class="hud-card c-kelly" id="card-KELLY"><div class="icon">📊</div><div class="info"><div class="title">KELLY</div><div class="sub">SIZING</div></div></div>
 
     <div class="packet" id="pkt"></div>
+
+    <div class="position-card" id="position-card">
+      <div class="pos-header">OPEN POSITION</div>
+      <div class="pos-body" id="pos-body">No open trade</div>
+    </div>
   </section>
 
   <section class="bottom">

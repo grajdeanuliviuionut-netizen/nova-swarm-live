@@ -1,15 +1,6 @@
-const pathMap = {
-  SCOUT: 'p-scout',
-  GUARD: 'p-guard',
-  STRATEGIST: 'p-strat',
-  RISK: 'p-risk',
-  TRADER: 'p-trader',
-  KELLY: 'p-kelly'
-};
+const pathMap = { SCOUT: 'p-scout', GUARD: 'p-guard', STRATEGIST: 'p-strat', RISK: 'p-risk', TRADER: 'p-trader', KELLY: 'p-kelly' };
 const agents = Object.keys(pathMap);
-let cycle = 0;
-let lastTs = 0;
-let chart;
+let cycle = 0, lastTs = 0, chart;
 
 function animatePacket(pathId, dur = 1200) {
   const path = document.getElementById(pathId);
@@ -59,29 +50,37 @@ function initChart() {
         barPercentage: 0.5
       }]
     },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { ticks: { color: '#445555', maxTicksLimit: 6 }, grid: { color: 'rgba(0,255,136,0.06)' } },
-        y: { ticks: { color: '#445555' }, grid: { color: 'rgba(0,255,136,0.06)' } }
-      }
-    }
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { x: { ticks: { color: '#445555', maxTicksLimit: 6 }, grid: { color: 'rgba(0,255,136,0.06)' } },
+                y: { ticks: { color: '#445555' }, grid: { color: 'rgba(0,255,136,0.06)' } } } }
   });
+}
+
+function renderPosition(t) {
+  const el = document.getElementById('pos-body');
+  if (!t) {
+    el.innerHTML = 'No open trade';
+    return;
+  }
+  const elapsed = Math.floor((Date.now() - t.entryTime) / 60000);
+  const remain = Math.max(0, Math.floor((t.timeStop - Date.now()) / 60000));
+  el.innerHTML = `
+    <div class="token">${t.token}</div>
+    <div class="row"><span>Entry</span><span>$${t.entryPrice.toFixed(4)}</span></div>
+    <div class="row"><span>Size</span><span>${t.sizeSol} SOL</span></div>
+    <div class="row"><span>SL</span><span>$${t.sl.toFixed(2)}</span></div>
+    <div class="row"><span>TP</span><span>$${t.tp.toFixed(2)}</span></div>
+    <div class="row"><span>Time</span><span>${elapsed}m / ${remain}m left</span></div>
+  `;
 }
 
 function renderLogs(logs) {
   const el = document.getElementById('logs');
-  if (!logs || !logs.length) {
-    el.innerHTML = '<div class="log-entry"><span class="time">--:--:--</span>No activity</div>';
-    return;
-  }
+  if (!logs || !logs.length) { el.innerHTML = '<div class="log-entry">No activity</div>'; return; }
   el.innerHTML = logs.slice(0, 20).map(l => {
     const t = new Date(l.time).toLocaleTimeString('en-GB', { hour12: false });
     const agent = (l.agent || '').toLowerCase();
-    const tag = l.agent || 'SYS';
-    return `<div class="log-entry ${agent}"><span class="time">${t}</span><span class="tag">[${tag}]</span>${l.message || ''}</div>`;
+    return `<div class="log-entry ${agent}"><span class="time">${t}</span><span class="tag">[${l.agent}]</span>${l.message || ''}</div>`;
   }).join('');
 }
 
@@ -96,17 +95,17 @@ function update(d) {
   document.getElementById('wr').textContent = total ? ((d.wins / total) * 100).toFixed(0) + '%' : '0%';
   document.getElementById('token').textContent = d.openTrade ? d.openTrade.token : '--';
 
+  renderPosition(d.openTrade);
   renderLogs(d.agentLogs || []);
 
   const newest = d.agentLogs?.[0];
   if (newest && newest.time > lastTs && Date.now() - newest.time < 5000) {
     lastTs = newest.time;
     const agent = newest.agent;
-    const pathId = pathMap[agent];
     document.querySelectorAll('.hud-card').forEach(c => c.classList.remove('active'));
     const card = document.getElementById('card-' + agent);
     if (card) card.classList.add('active');
-    if (pathId) animatePacket(pathId, 900);
+    if (pathMap[agent]) animatePacket(pathMap[agent], 900);
   }
 }
 
