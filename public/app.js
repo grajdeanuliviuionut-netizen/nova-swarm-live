@@ -2,7 +2,7 @@ const pathIds = ['p1','p2','p3','p4','p5','p6','p7','p8'];
 const agentNames = ['SCOUT','GUARD','STRAT','RISK','TRADER','KELLY','EDGE','PRIOR'];
 let cycle = 0;
 let lastTs = 0;
-let candleChart;
+let chart;
 
 function animatePkt(pathId, dur = 1400) {
   const path = document.getElementById(pathId);
@@ -38,17 +38,17 @@ setInterval(() => {
 }, 1600);
 
 function initChart() {
-  const ctx = document.getElementById('candleChart').getContext('2d');
-  candleChart = new Chart(ctx, {
+  const ctx = document.getElementById('candle').getContext('2d');
+  chart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: Array.from({length: 14}, (_, i) => i),
+      labels: Array.from({length: 16}, (_, i) => i),
       datasets: [{
-        data: [[68,74],[70,76],[69,75],[72,78],[71,77],[74,80],[73,79],[75,81],[74,80],[76,82],[75,81],[77,83],[76,82],[75,81]],
-        backgroundColor: Array(14).fill(0).map((_,i) => i % 3 === 0 ? 'rgba(255,0,110,0.5)' : 'rgba(0,255,136,0.5)'),
-        borderColor: Array(14).fill(0).map((_,i) => i % 3 === 0 ? '#ff006e' : '#00ff88'),
+        data: [[68,74],[70,76],[69,75],[72,78],[71,77],[74,80],[73,79],[75,81],[74,80],[76,82],[75,81],[77,83],[76,82],[75,81],[74,79],[73,78]],
+        backgroundColor: Array(16).fill(0).map((_,i) => i % 3 === 0 ? 'rgba(255,0,110,0.55)' : 'rgba(0,255,136,0.55)'),
+        borderColor: Array(16).fill(0).map((_,i) => i % 3 === 0 ? '#ff006e' : '#00ff88'),
         borderWidth: 1,
-        barPercentage: 0.55
+        barPercentage: 0.5
       }]
     },
     options: {
@@ -65,29 +65,30 @@ function initChart() {
 
 function update(d) {
   document.getElementById('equity').textContent = '$' + (d.equity || 1).toFixed(4);
-  document.getElementById('token-name').textContent = d.openTrade ? d.openTrade.token : 'SCANNING';
+  document.getElementById('token').textContent = d.openTrade ? d.openTrade.token : 'SCANNING';
   document.getElementById('entry').textContent = d.openTrade ? '$' + d.openTrade.entryPrice.toFixed(4) : '--';
   const pnl = d.totalPnl || 0;
-  const pnlEl = document.getElementById('trade-pnl');
+  const pnlEl = document.getElementById('pnl');
   pnlEl.textContent = (pnl >= 0 ? '+' : '') + pnl.toFixed(4);
   pnlEl.className = pnl >= 0 ? 'pos' : 'neg';
 
-  const list = document.getElementById('trade-list');
   const closed = (d.wins || 0) + (d.losses || 0);
   document.querySelector('.closed').textContent = closed + ' closed';
+
+  const trades = document.getElementById('trades');
   if (d.agentLogs && d.agentLogs.length) {
-    list.innerHTML = d.agentLogs.slice(0, 8).map(l => {
+    trades.innerHTML = d.agentLogs.slice(0, 10).map(l => {
       const isBuy = (l.message || '').includes('BUY');
       const isClose = (l.message || '').includes('CLOSED');
-      return `<div class="trade-row"><span class="${isBuy?'buy':isClose?'sell':''}">${l.agent}</span><span>${(l.message||'').slice(0,28)}</span></div>`;
+      return `<div class="trow"><span class="${isBuy?'buy':isClose?'sell':''}">${l.agent}</span><span>${(l.message||'').slice(0,32)}</span></div>`;
     }).join('');
   }
 
   const logs = document.getElementById('logs');
   if (d.agentLogs && d.agentLogs.length) {
-    logs.innerHTML = d.agentLogs.slice(0, 12).map(l => {
+    logs.innerHTML = d.agentLogs.slice(0, 14).map(l => {
       const t = new Date(l.time).toLocaleTimeString('en-GB', {hour12:false});
-      return `<div class="log-row"><span class="t">${t}</span><span class="ag">${l.agent}</span>${l.message || ''}</div>`;
+      return `<div class="lrow"><span class="t">${t}</span><span class="ag">${l.agent}</span>${l.message || ''}</div>`;
     }).join('');
   }
 
@@ -95,7 +96,7 @@ function update(d) {
   if (newest && newest.time > lastTs && Date.now() - newest.time < 5000) {
     lastTs = newest.time;
     const map = { SCOUT:'p1', GUARD:'p2', STRATEGIST:'p3', RISK:'p4', TRADER:'p5' };
-    if (map[newest.agent]) animatePkt(map[newest.agent], 900);
+    if (map[newest.agent]) animatePkt(map[newest.agent], 800);
   }
 }
 
