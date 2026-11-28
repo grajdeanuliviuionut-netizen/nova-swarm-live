@@ -1,122 +1,129 @@
-const pathMap = { SCOUT: 'p-scout', GUARD: 'p-guard', STRATEGIST: 'p-strat', RISK: 'p-risk', TRADER: 'p-trader', KELLY: 'p-kelly' };
-const agents = Object.keys(pathMap);
-let cycle = 0, lastTs = 0, chart;
+let volChart, candleChart, flowChart;
+let lastTs = 0;
 
-function animatePacket(pathId, dur = 1200) {
-  const path = document.getElementById(pathId);
-  const pkt = document.getElementById('pkt');
-  if (!path || !pkt) return;
-  path.classList.add('active');
-  pkt.classList.add('active');
-  const len = path.getTotalLength();
-  let start = null;
-  function step(ts) {
-    if (!start) start = ts;
-    const p = Math.min((ts - start) / dur, 1);
-    const pt = path.getPointAtLength(p * len);
-    const svg = document.getElementById('svg');
-    const sp = svg.createSVGPoint();
-    sp.x = pt.x; sp.y = pt.y;
-    const screen = sp.matrixTransform(svg.getScreenCTM());
-    const rect = svg.getBoundingClientRect();
-    pkt.style.left = (screen.x - rect.left - 4) + 'px';
-    pkt.style.top = (screen.y - rect.top - 4) + 'px';
-    if (p < 1) requestAnimationFrame(step);
-    else path.classList.remove('active');
-  }
-  requestAnimationFrame(step);
-}
+function rand(min, max) { return Math.random() * (max - min) + min; }
 
-setInterval(() => {
-  const agent = agents[cycle % agents.length];
-  animatePacket(pathMap[agent], 1400);
-  document.querySelectorAll('.hud-card').forEach(c => c.classList.remove('active'));
-  const card = document.getElementById('card-' + agent);
-  if (card) card.classList.add('active');
-  cycle++;
-}, 1800);
+function initCharts() {
+  const vCtx = document.getElementById('volChart').getContext('2d');
+  volChart = new Chart(vCtx, {
+    type: 'line',
+    data: {
+      labels: Array.from({length: 20}, (_, i) => i),
+      datasets: [{ data: Array.from({length: 20}, () => rand(0.8, 1.2)), borderColor: '#FFD700', borderWidth: 1.5, tension: 0.3, pointRadius: 0, fill: false }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { x: { display: false }, y: { ticks: { color: '#555', font: { size: 8 } }, grid: { color: '#151515' } } } }
+  });
 
-function initChart() {
-  const ctx = document.getElementById('candle').getContext('2d');
-  chart = new Chart(ctx, {
+  const cCtx = document.getElementById('candleChart').getContext('2d');
+  candleChart = new Chart(cCtx, {
     type: 'bar',
     data: {
-      labels: Array.from({length: 18}, (_, i) => i),
+      labels: Array.from({length: 24}, (_, i) => i),
       datasets: [{
-        data: [[70,76],[72,78],[69,75],[73,79],[71,77],[75,81],[73,79],[76,82],[74,80],[77,83],[75,81],[78,84],[76,82],[75,81],[74,80],[73,79],[72,78],[71,77]],
-        backgroundColor: Array(18).fill(0).map((_, i) => i % 3 === 0 ? 'rgba(255,0,85,0.55)' : 'rgba(0,255,136,0.55)'),
-        borderColor: Array(18).fill(0).map((_, i) => i % 3 === 0 ? '#ff0055' : '#00ff88'),
+        data: Array.from({length: 24}, () => [rand(70, 74), rand(76, 82)]),
+        backgroundColor: Array(24).fill(0).map(() => Math.random() > 0.4 ? 'rgba(0,255,0,0.5)' : 'rgba(255,0,0,0.5)'),
+        borderColor: Array(24).fill(0).map(() => Math.random() > 0.4 ? '#00FF00' : '#FF0000'),
         borderWidth: 1,
-        barPercentage: 0.5
+        barPercentage: 0.55
       }]
     },
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-      scales: { x: { ticks: { color: '#445555', maxTicksLimit: 6 }, grid: { color: 'rgba(0,255,136,0.06)' } },
-                y: { ticks: { color: '#445555' }, grid: { color: 'rgba(0,255,136,0.06)' } } } }
+      scales: { x: { ticks: { color: '#444', maxTicksLimit: 6, font: { size: 8 } }, grid: { display: false } },
+                y: { ticks: { color: '#444', font: { size: 8 } }, grid: { color: '#151515' } } } }
+  });
+
+  const fCtx = document.getElementById('flowChart').getContext('2d');
+  flowChart = new Chart(fCtx, {
+    type: 'line',
+    data: {
+      labels: Array.from({length: 30}, (_, i) => i),
+      datasets: [{ data: Array.from({length: 30}, () => rand(-1, 1)), borderColor: '#FFD700', borderWidth: 1, tension: 0.4, pointRadius: 0 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { x: { display: false }, y: { ticks: { color: '#555', font: { size: 8 } }, grid: { color: '#151515' } } } }
   });
 }
 
-function renderPosition(t) {
-  const el = document.getElementById('pos-body');
-  if (!t) {
-    el.innerHTML = 'No open trade';
-    return;
+function animateCharts() {
+  if (volChart) {
+    volChart.data.datasets[0].data = Array.from({length: 20}, () => rand(0.8, 1.2));
+    volChart.update('none');
   }
-  const elapsed = Math.floor((Date.now() - t.entryTime) / 60000);
-  const remain = Math.max(0, Math.floor((t.timeStop - Date.now()) / 60000));
-  el.innerHTML = `
-    <div class="token">${t.token}</div>
-    <div class="row"><span>Entry</span><span>$${t.entryPrice.toFixed(4)}</span></div>
-    <div class="row"><span>Size</span><span>${t.sizeSol} SOL</span></div>
-    <div class="row"><span>SL</span><span>$${t.sl.toFixed(2)}</span></div>
-    <div class="row"><span>TP</span><span>$${t.tp.toFixed(2)}</span></div>
-    <div class="row"><span>Time</span><span>${elapsed}m / ${remain}m left</span></div>
-  `;
+  if (candleChart) {
+    candleChart.data.datasets[0].data = Array.from({length: 24}, () => [rand(70, 74), rand(76, 82)]);
+    candleChart.data.datasets[0].backgroundColor = Array(24).fill(0).map(() => Math.random() > 0.4 ? 'rgba(0,255,0,0.5)' : 'rgba(255,0,0,0.5)');
+    candleChart.data.datasets[0].borderColor = Array(24).fill(0).map(() => Math.random() > 0.4 ? '#00FF00' : '#FF0000');
+    candleChart.update('none');
+  }
+  if (flowChart) {
+    flowChart.data.datasets[0].data = Array.from({length: 30}, () => rand(-1, 1));
+    flowChart.update('none');
+  }
 }
 
-function renderLogs(logs) {
-  const el = document.getElementById('logs');
-  if (!logs || !logs.length) { el.innerHTML = '<div class="log-entry">No activity</div>'; return; }
-  el.innerHTML = logs.slice(0, 20).map(l => {
-    const t = new Date(l.time).toLocaleTimeString('en-GB', { hour12: false });
-    const agent = (l.agent || '').toLowerCase();
-    return `<div class="log-entry ${agent}"><span class="time">${t}</span><span class="tag">[${l.agent}]</span>${l.message || ''}</div>`;
+function renderRanker() {
+  const tokens = ['WIF', 'BONK', 'PEPE', 'POPCAT', 'MEW'];
+  const el = document.getElementById('ranker');
+  el.innerHTML = tokens.map(t => {
+    const dir = Math.random() > 0.5 ? 'LONG' : 'SHORT';
+    const edge = (rand(2, 18)).toFixed(1);
+    return `<tr><td>${t}</td><td class="${dir==='LONG'?'buy':'sell'}">${dir}</td><td>${edge}%</td></tr>`;
   }).join('');
 }
 
-function update(d) {
-  document.getElementById('balance').textContent = (d.equity || 1).toFixed(4);
-  const pnl = d.totalPnl || 0;
-  const pnlEl = document.getElementById('pnl');
-  pnlEl.textContent = (pnl >= 0 ? '+' : '') + pnl.toFixed(4);
-  pnlEl.className = pnl >= 0 ? 'pos' : 'neg';
-  const total = (d.wins || 0) + (d.losses || 0);
-  document.getElementById('trades').textContent = total;
-  document.getElementById('wr').textContent = total ? ((d.wins / total) * 100).toFixed(0) + '%' : '0%';
-  document.getElementById('token').textContent = d.openTrade ? d.openTrade.token : '--';
+function renderTrace(logs) {
+  const el = document.getElementById('trace');
+  if (!logs || !logs.length) { el.innerHTML = '<div class="trace-row">NO LOGS</div>'; return; }
+  el.innerHTML = logs.slice(0, 16).map(l => {
+    const t = new Date(l.time).toLocaleTimeString('en-GB', { hour12: false });
+    return `<div class="trace-row"><span class="t">${t}</span><span class="ag">${l.agent}</span>${(l.message||'').slice(0,40)}</div>`;
+  }).join('');
+}
 
-  renderPosition(d.openTrade);
-  renderLogs(d.agentLogs || []);
+function renderPosition(t) {
+  const el = document.getElementById('positions');
+  if (!t) { el.innerHTML = 'NO ACTIVE TRADES'; return; }
+  const elapsed = Math.floor((Date.now() - t.entryTime) / 60000);
+  el.innerHTML = `
+    <div class="token">${t.token}</div>
+    <div class="row"><span>ENTRY</span><span>$${t.entryPrice.toFixed(4)}</span></div>
+    <div class="row"><span>SIZE</span><span>${t.sizeSol} SOL</span></div>
+    <div class="row"><span>SL</span><span>$${t.sl.toFixed(2)}</span></div>
+    <div class="row"><span>TP</span><span>$${t.tp.toFixed(2)}</span></div>
+    <div class="row"><span>TIME</span><span>${elapsed}M</span></div>
+  `;
+}
 
-  const newest = d.agentLogs?.[0];
-  if (newest && newest.time > lastTs && Date.now() - newest.time < 5000) {
-    lastTs = newest.time;
-    const agent = newest.agent;
-    document.querySelectorAll('.hud-card').forEach(c => c.classList.remove('active'));
-    const card = document.getElementById('card-' + agent);
-    if (card) card.classList.add('active');
-    if (pathMap[agent]) animatePacket(pathMap[agent], 900);
-  }
+function renderAgents(logs) {
+  const agents = ['SCOUT','GUARD','STRATEGIST','RISK','TRADER','CHIEF'];
+  const newest = logs && logs[0] ? logs[0].agent : null;
+  const el = document.getElementById('agents-row');
+  el.innerHTML = agents.map(a => `<span class="agent-pill ${a===newest?'active':''}">${a}</span>`).join('');
 }
 
 async function poll() {
   try {
     const r = await fetch('/api/status');
     const d = await r.json();
-    update(d);
+
+    document.getElementById('eq').textContent = (d.equity || 1).toFixed(4);
+    const pnl = d.totalPnl || 0;
+    const pnlEl = document.getElementById('pnl');
+    pnlEl.textContent = (pnl >= 0 ? '+' : '') + pnl.toFixed(4);
+    pnlEl.className = pnl >= 0 ? 'pos' : 'neg';
+    const total = (d.wins || 0) + (d.losses || 0);
+    document.getElementById('trades').textContent = total;
+    document.getElementById('wr').textContent = total ? ((d.wins / total) * 100).toFixed(0) + '%' : '0%';
+
+    renderTrace(d.agentLogs || []);
+    renderPosition(d.openTrade);
+    renderAgents(d.agentLogs || []);
+    animateCharts();
+    renderRanker();
   } catch (e) {}
 }
 
-initChart();
+initCharts();
 setInterval(poll, 2000);
 poll();

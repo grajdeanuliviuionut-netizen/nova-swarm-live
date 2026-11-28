@@ -3,66 +3,74 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GROK // ORBITALS HUD</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<title>HEDGE FUND HUD</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="hud">
-  <header class="ticker">
-    <div class="logo">GROK<span>//ORBITALS</span></div>
-    <div class="metrics">
-      <div class="m"><span>BALANCE</span><strong id="balance">1.0000</strong></div>
-      <div class="m"><span>PNL</span><strong id="pnl" class="pos">+0.0000</strong></div>
-      <div class="m"><span>TRADES</span><strong id="trades">0</strong></div>
-      <div class="m"><span>WIN RATE</span><strong id="wr">0%</strong></div>
+  <header class="top">
+    <div class="brand">GROK DESK</div>
+    <div class="tickers">
+      <span>EQ <strong id="eq">1.0000</strong></span>
+      <span>PNL <strong id="pnl" class="pos">+0.0000</strong></span>
+      <span>WR <strong id="wr">0%</strong></span>
+      <span>TRADES <strong id="trades">0</strong></span>
+      <span class="live"><span class="dot"></span> ONLINE</span>
     </div>
-    <div class="live"><span class="pulse"></span> LIVE</div>
   </header>
 
-  <section class="orbitals">
-    <div class="grid-bg"></div>
-    <svg id="svg" viewBox="0 0 1000 540" preserveAspectRatio="xMidYMid meet">
-      <defs><filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-      <path id="p-scout" d="M 140 90 C 250 40, 380 80, 500 270" class="path"/>
-      <path id="p-guard" d="M 360 50 C 420 20, 460 60, 500 270" class="path"/>
-      <path id="p-strat" d="M 860 90 C 750 40, 620 80, 500 270" class="path"/>
-      <path id="p-risk" d="M 860 450 C 750 500, 620 460, 500 270" class="path"/>
-      <path id="p-trader" d="M 500 490 C 420 520, 380 480, 500 270" class="path"/>
-      <path id="p-kelly" d="M 140 450 C 250 500, 380 460, 500 270" class="path"/>
-    </svg>
+  <main class="grid">
+    <aside class="col left">
+      <div class="panel">
+        <h3>EDGE RANKER</h3>
+        <table class="dense">
+          <thead><tr><th>TOKEN</th><th>DIR</th><th>EDGE</th></tr></thead>
+          <tbody id="ranker"></tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <h3>EXECUTION TRACE</h3>
+        <div id="trace" class="trace"></div>
+      </div>
+    </aside>
 
-    <div class="radar">
-      <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
-      <div class="core"><div class="eyes"><span></span><span></span></div><div class="core-label">GROK</div></div>
-    </div>
+    <section class="col center">
+      <div class="panel ring-panel">
+        <h3>AGENT ENSEMBLE</h3>
+        <div class="ring-wrap">
+          <div class="ring r1"></div>
+          <div class="ring r2"></div>
+          <div class="ring r3"></div>
+          <div class="core">GROK</div>
+        </div>
+        <div class="agents-row" id="agents-row"></div>
+      </div>
+    </section>
 
-    <div class="hud-card c-scout" id="card-SCOUT"><div class="icon">📡</div><div class="info"><div class="title">SCOUT</div><div class="sub">SCANNING</div></div></div>
-    <div class="hud-card c-guard" id="card-GUARD"><div class="icon">🛡️</div><div class="info"><div class="title">GUARD</div><div class="sub">FILTERS</div></div></div>
-    <div class="hud-card c-strat" id="card-STRATEGIST"><div class="icon">🎯</div><div class="info"><div class="title">STRAT</div><div class="sub">CONFLUENCE</div></div></div>
-    <div class="hud-card c-risk" id="card-RISK"><div class="icon">⚠️</div><div class="info"><div class="title">RISK</div><div class="sub">0.02 SOL</div></div></div>
-    <div class="hud-card c-trader" id="card-TRADER"><div class="icon">⚡</div><div class="info"><div class="title">TRADER</div><div class="sub">EXECUTING</div></div></div>
-    <div class="hud-card c-kelly" id="card-KELLY"><div class="icon">📊</div><div class="info"><div class="title">KELLY</div><div class="sub">SIZING</div></div></div>
+    <aside class="col right">
+      <div class="panel">
+        <h3>LIVE POSITIONS</h3>
+        <div id="positions" class="positions">NO ACTIVE TRADES</div>
+      </div>
+      <div class="panel">
+        <h3>STATE ESTIMATOR</h3>
+        <canvas id="volChart"></canvas>
+      </div>
+    </aside>
 
-    <div class="packet" id="pkt"></div>
-
-    <div class="position-card" id="position-card">
-      <div class="pos-header">OPEN POSITION</div>
-      <div class="pos-body" id="pos-body">No open trade</div>
-    </div>
-  </section>
-
-  <section class="bottom">
-    <div class="panel chart-panel">
-      <div class="ph">PRICE ACTION <span id="token">--</span></div>
-      <canvas id="candle"></canvas>
-    </div>
-    <div class="panel log-panel">
-      <div class="ph">AGENT LOGS</div>
-      <div id="logs" class="logs"></div>
-    </div>
-  </section>
+    <section class="bottom">
+      <div class="panel">
+        <h3>TRADE PREP</h3>
+        <canvas id="candleChart"></canvas>
+      </div>
+      <div class="panel">
+        <h3>FLOW PHASE</h3>
+        <canvas id="flowChart"></canvas>
+      </div>
+    </section>
+  </main>
 </div>
 <script src="app.js"></script>
 </body>
