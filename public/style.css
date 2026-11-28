@@ -20,9 +20,7 @@ body {
 .hud { display: flex; flex-direction: column; height: 100vh; }
 
 .top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: flex; justify-content: space-between; align-items: center;
   padding: 0.4rem 0.8rem;
   background: #080808;
   border-bottom: 1px solid var(--border);
@@ -69,11 +67,7 @@ body {
 }
 
 .ring-panel { align-items: center; justify-content: center; }
-.ring-wrap {
-  position: relative;
-  width: 220px; height: 220px;
-  margin: 10px 0;
-}
+.ring-wrap { position: relative; width: 220px; height: 220px; margin: 10px 0; }
 .ring {
   position: absolute; inset: 0;
   border: 1px solid rgba(255, 215, 0, 0.25);
@@ -82,10 +76,7 @@ body {
 }
 .r2 { animation-delay: 1.6s; }
 .r3 { animation-delay: 3.2s; }
-@keyframes ripple {
-  0% { transform: scale(0.5); opacity: 0.8; }
-  100% { transform: scale(1.4); opacity: 0; }
-}
+@keyframes ripple { 0% { transform: scale(0.5); opacity: 0.8; } 100% { transform: scale(1.4); opacity: 0; } }
 .core {
   position: absolute;
   left: 50%; top: 50%;
@@ -99,21 +90,9 @@ body {
   font-size: 14px; font-weight: 700; color: var(--gold);
   letter-spacing: 0.1em;
 }
-.agents-row {
-  display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-top: 8px;
-}
-.agent-pill {
-  font-size: 9px;
-  padding: 2px 6px;
-  border: 1px solid #333;
-  border-radius: 3px;
-  color: var(--dim);
-}
-.agent-pill.active {
-  border-color: var(--gold);
-  color: var(--gold);
-  box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
-}
+.agents-row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+.agent-pill { font-size: 9px; padding: 2px 6px; border: 1px solid #333; border-radius: 3px; color: var(--dim); }
+.agent-pill.active { border-color: var(--gold); color: var(--gold); box-shadow: 0 0 8px rgba(255, 215, 0, 0.4); }
 
 .dense { width: 100%; border-collapse: collapse; font-size: 10px; }
 .dense th { text-align: left; color: var(--dim); font-weight: 400; padding: 2px 4px; border-bottom: 1px solid #222; }
