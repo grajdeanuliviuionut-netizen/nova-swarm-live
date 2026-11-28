@@ -15,7 +15,7 @@ const DEFAULT = {
   totalPnl: 0,
   wins: 0,
   losses: 0,
-  equity: 10.0,
+  equity: 2.0,
   agentLogs: [],
   chiefBriefing: 'Big-win desk online.',
   chiefMood: 'calm',
@@ -30,7 +30,7 @@ function load() {
 function save(s) { fs.writeFileSync(STATE_PATH, JSON.stringify(s, null, 2)); }
 
 let state = load();
-if (state.equity < 10) state.equity = 10;
+if (!state.equity || state.equity < 2) state.equity = 2.0;
 
 function log(agent, message) {
   state.agentLogs.unshift({ agent, message, time: Date.now() });
@@ -48,7 +48,7 @@ function resetDaily() {
 }
 
 async function scan() {
-  if (state.openTrade || state.dailyPnl <= -0.5) return;
+  if (state.openTrade || state.dailyPnl <= -0.2) return;
   try {
     log('SCOUT', 'Scanning DexScreener...');
     const res = await axios.get('https://api.dexscreener.com/latest/dex/search?q=SOL', { timeout: 7000 });
@@ -64,7 +64,7 @@ async function scan() {
     const pick = pairs[0];
     log('GUARD', `${pick.baseToken.symbol} liq $${Math.round(pick.liquidity.usd)}`);
     log('STRATEGIST', `5m +${pick.priceChange.m5.toFixed(1)}%`);
-    log('RISK', '0.05 SOL approved');
+    log('RISK', '0.02 SOL approved');
     openTrade(pick);
   } catch (e) { log('SCOUT', 'Scan error'); }
 }
@@ -77,7 +77,7 @@ function openTrade(pair) {
     token: pair.baseToken.symbol,
     pairAddress: pair.pairAddress,
     entryPrice: price,
-    sizeSol: 0.05,
+    sizeSol: 0.02,
     entryTime: Date.now(),
     sl: price * 0.90,
     peakPrice: price,
@@ -128,7 +128,7 @@ async function checkTrade() {
     const pnl = +(t.sizeSol * (raw - 0.01)).toFixed(6);
     state.dailyPnl = +(state.dailyPnl + pnl).toFixed(6);
     state.totalPnl = +(state.totalPnl + pnl).toFixed(6);
-    state.equity = +(state.equity + pnl).toFixed(6);
+    state.equity = +(2.0 + state.totalPnl).toFixed(6);
     if (pnl > 0) state.wins++; else state.losses++;
     state.chartData.pnl.push(state.totalPnl);
     if (state.chartData.pnl.length > 50) state.chartData.pnl.shift();
@@ -145,12 +145,12 @@ async function checkTrade() {
 
 setInterval(() => {
   resetDaily();
-  if (!state.openTrade && state.dailyPnl > -0.5) scan();
+  if (!state.openTrade && state.dailyPnl > -0.2) scan();
   else if (state.openTrade) checkTrade();
 }, 10000);
 
 if (!state.agentLogs.length) {
-  log('SYSTEM', 'Big-win desk ready. 10 SOL. Trailing stops on.');
+  log('SYSTEM', 'Big-win desk ready. 2.0 SOL. Trailing stops on.');
   log('CHIEF', 'Standing by.');
 }
 

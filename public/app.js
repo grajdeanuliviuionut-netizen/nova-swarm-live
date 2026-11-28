@@ -96,7 +96,7 @@ async function poll() {
   try {
     const r = await fetch('/api/status');
     const d = await r.json();
-    document.getElementById('eq').textContent = (d.equity || 10).toFixed(4);
+    document.getElementById('eq').textContent = (d.equity || 2).toFixed(4);
     const pnl = d.totalPnl || 0;
     const pnlEl = document.getElementById('pnl');
     pnlEl.textContent = (pnl >= 0 ? '+' : '') + pnl.toFixed(4);
