@@ -34,12 +34,14 @@ function initCharts() {
   });
 }
 
-function animateCharts() {
+function animateCharts(d) {
   if (volChart) { volChart.data.datasets[0].data = Array.from({length: 20}, () => rand(0.8, 1.2)); volChart.update('none'); }
-  if (candleChart) {
-    candleChart.data.datasets[0].data = Array.from({length: 24}, () => [rand(70, 74), rand(76, 82)]);
-    candleChart.data.datasets[0].backgroundColor = Array(24).fill(0).map(() => Math.random() > 0.4 ? 'rgba(0,255,0,0.5)' : 'rgba(255,0,0,0.5)');
-    candleChart.data.datasets[0].borderColor = Array(24).fill(0).map(() => Math.random() > 0.4 ? '#00FF00' : '#FF0000');
+  if (candleChart && d.chartData?.candles?.length) {
+    const c = d.chartData.candles;
+    candleChart.data.labels = c.map((_, i) => i);
+    candleChart.data.datasets[0].data = c.map(x => [x.l, x.h]);
+    candleChart.data.datasets[0].backgroundColor = c.map(x => x.c >= x.o ? 'rgba(0,255,0,0.5)' : 'rgba(255,0,0,0.5)');
+    candleChart.data.datasets[0].borderColor = c.map(x => x.c >= x.o ? '#00FF00' : '#FF0000');
     candleChart.update('none');
   }
   if (flowChart) { flowChart.data.datasets[0].data = Array.from({length: 30}, () => rand(-1, 1)); flowChart.update('none'); }
@@ -65,15 +67,23 @@ function renderTrace(logs) {
 function renderPosition(t) {
   const el = document.getElementById('positions');
   if (!t) { el.innerHTML = 'NO ACTIVE TRADES'; return; }
-  const elapsed = Math.floor((Date.now() - t.entryTime) / 60000);
+  const cur = ((t.simPrice || t.entryPrice) - t.entryPrice) / t.entryPrice * 100;
+  const peak = (t.peakPrice - t.entryPrice) / t.entryPrice * 100;
   el.innerHTML = `
-    <div class="token">${t.token}</div>
+    <div class="token">${t.token}${t.moonshot ? ' 🚀' : ''}</div>
     <div class="row"><span>ENTRY</span><span>$${t.entryPrice.toFixed(4)}</span></div>
     <div class="row"><span>SIZE</span><span>${t.sizeSol} SOL</span></div>
-    <div class="row"><span>SL</span><span>$${t.sl.toFixed(2)}</span></div>
-    <div class="row"><span>TP</span><span>$${t.tp.toFixed(2)}</span></div>
-    <div class="row"><span>TIME</span><span>${elapsed}M</span></div>
+    <div class="row"><span>CURRENT</span><span class="${cur>=0?'buy':'sell'}">${cur.toFixed(1)}%</span></div>
+    <div class="row"><span>PEAK</span><span class="buy">+${peak.toFixed(1)}%</span></div>
+    <div class="row"><span>TRAIL</span><span class="${t.trailingActive?'trail':''}">${t.trailingActive ? 'ACTIVE' : 'OFF'}</span></div>
   `;
+}
+
+function renderCore(t) {
+  const el = document.getElementById('core-content');
+  if (!t) { el.innerHTML = 'GROK'; return; }
+  const peak = (t.peakPrice - t.entryPrice) / t.entryPrice * 100;
+  el.innerHTML = `${t.token}<br>+${peak.toFixed(0)}%`;
 }
 
 function renderAgents(logs) {
@@ -86,7 +96,7 @@ async function poll() {
   try {
     const r = await fetch('/api/status');
     const d = await r.json();
-    document.getElementById('eq').textContent = (d.equity || 1).toFixed(4);
+    document.getElementById('eq').textContent = (d.equity || 10).toFixed(4);
     const pnl = d.totalPnl || 0;
     const pnlEl = document.getElementById('pnl');
     pnlEl.textContent = (pnl >= 0 ? '+' : '') + pnl.toFixed(4);
@@ -96,8 +106,9 @@ async function poll() {
     document.getElementById('wr').textContent = total ? ((d.wins / total) * 100).toFixed(0) + '%' : '0%';
     renderTrace(d.agentLogs || []);
     renderPosition(d.openTrade);
+    renderCore(d.openTrade);
     renderAgents(d.agentLogs || []);
-    animateCharts();
+    animateCharts(d);
     renderRanker();
   } catch (e) {}
 }

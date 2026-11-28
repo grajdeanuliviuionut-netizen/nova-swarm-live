@@ -1,6 +1,6 @@
 {
-  "name": "grok-solana-desk",
-  "version": "2.0.0",
+  "name": "grok-bigwin-desk",
+  "version": "3.0.0",
   "main": "server.js",
   "scripts": { "start": "node server.js" },
   "dependencies": {
