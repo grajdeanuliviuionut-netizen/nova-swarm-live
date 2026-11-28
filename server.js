@@ -17,7 +17,7 @@ const DEFAULT = {
   losses: 0,
   equity: 2.0,
   agentLogs: [],
-  chiefBriefing: 'Big-win desk online.',
+  chiefBriefing: 'Desk online.',
   chiefMood: 'calm',
   chartData: { pnl: [0], candles: [] },
   lastReset: new Date().toISOString().slice(0, 10)
@@ -38,40 +38,56 @@ function log(agent, message) {
   save(state);
 }
 
-function resetDaily() {
-  const today = new Date().toISOString().slice(0, 10);
-  if (state.lastReset !== today) {
-    state.dailyPnl = 0;
-    state.lastReset = today;
-    log('SYSTEM', 'Daily PnL reset');
-  }
-}
-
 async function scan() {
-  if (state.openTrade || state.dailyPnl <= -0.2) return;
+  if (state.openTrade) return;
   try {
     log('SCOUT', 'Scanning DexScreener...');
     const res = await axios.get('https://api.dexscreener.com/latest/dex/search?q=SOL', { timeout: 7000 });
-    const pairs = (res.data.pairs || []).filter(p => {
-      if (p.chainId !== 'solana') return false;
-      if ((p.liquidity?.usd || 0) < 30000) return false;
-      if ((p.volume?.m5 || 0) < 20000) return false;
-      const ch5 = p.priceChange?.m5 || 0;
-      return ch5 >= 5 && ch5 <= 25;
-    });
-    if (!pairs.length) { log('SCOUT', 'No setups'); return; }
+    const pairs = (res.data.pairs || []).filter(p => p.chainId === 'solana' && (p.liquidity?.usd || 0) > 10000);
+    if (!pairs.length) {
+      log('SCOUT', 'No pairs, forcing paper trade');
+      forceTrade();
+      return;
+    }
     pairs.sort((a, b) => (b.volume?.m5 || 0) - (a.volume?.m5 || 0));
     const pick = pairs[0];
     log('GUARD', `${pick.baseToken.symbol} liq $${Math.round(pick.liquidity.usd)}`);
-    log('STRATEGIST', `5m +${pick.priceChange.m5.toFixed(1)}%`);
+    log('STRATEGIST', 'Setup accepted');
     log('RISK', '0.02 SOL approved');
     openTrade(pick);
-  } catch (e) { log('SCOUT', 'Scan error'); }
+  } catch (e) {
+    log('SCOUT', 'Scan error, forcing trade');
+    forceTrade();
+  }
+}
+
+function forceTrade() {
+  const tokens = ['WIF', 'BONK', 'PEPE', 'POPCAT', 'MEW'];
+  const token = tokens[Math.floor(Math.random() * tokens.length)];
+  const price = +(0.0001 + Math.random() * 0.01).toFixed(6);
+  const moonshot = Math.random() < 0.25;
+  state.openTrade = {
+    token,
+    pairAddress: 'simulated',
+    entryPrice: price,
+    sizeSol: 0.02,
+    entryTime: Date.now(),
+    sl: price * 0.90,
+    peakPrice: price,
+    trailingActive: false,
+    timeStop: Date.now() + 10 * 60 * 1000,
+    moonshot,
+    simPrice: price
+  };
+  log('TRADER', `PAPER BUY ${token} @ $${price.toFixed(6)}${moonshot ? ' [MOONSHOT]' : ''}`);
+  state.chiefBriefing = `Opened ${token}`;
+  state.chiefMood = 'alert';
+  save(state);
 }
 
 function openTrade(pair) {
   const price = parseFloat(pair.priceUsd || 0);
-  if (!price) return;
+  if (!price) { forceTrade(); return; }
   const moonshot = Math.random() < 0.20;
   state.openTrade = {
     token: pair.baseToken.symbol,
@@ -95,12 +111,12 @@ function openTrade(pair) {
 function simulatePrice(t) {
   const elapsed = (Date.now() - t.entryTime) / 1000;
   if (t.moonshot) {
-    const progress = Math.min(elapsed / 300, 1);
+    const progress = Math.min(elapsed / 240, 1);
     const mult = 1 + progress * (1 + Math.random() * 4);
     return t.entryPrice * mult * (0.95 + Math.random() * 0.1);
   }
-  const drift = 1 + (Math.random() - 0.45) * 0.08;
-  return Math.max(t.entryPrice * 0.7, t.simPrice * drift);
+  const drift = 1 + (Math.random() - 0.4) * 0.1;
+  return Math.max(t.entryPrice * 0.75, t.simPrice * drift);
 }
 
 async function checkTrade() {
@@ -144,13 +160,16 @@ async function checkTrade() {
 }
 
 setInterval(() => {
-  resetDaily();
-  if (!state.openTrade && state.dailyPnl > -0.2) scan();
-  else if (state.openTrade) checkTrade();
-}, 10000);
+  if (!state.openTrade) scan();
+  else checkTrade();
+}, 8000);
+
+setTimeout(() => {
+  if (!state.openTrade) forceTrade();
+}, 2000);
 
 if (!state.agentLogs.length) {
-  log('SYSTEM', 'Big-win desk ready. 2.0 SOL. Trailing stops on.');
+  log('SYSTEM', 'Desk ready. 2.0 SOL. Will trade immediately.');
   log('CHIEF', 'Standing by.');
 }
 
@@ -171,4 +190,4 @@ app.get('/api/status', (req, res) => {
   });
 });
 
-app.listen(PORT, () => console.log('Big-win desk on :' + PORT));
+app.listen(PORT, () => console.log('Desk on :' + PORT));
